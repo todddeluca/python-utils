@@ -4,14 +4,13 @@ Use Phusion Passenger to run a Python WSGI application.
 import datetime
 import os
 import sys
+import traceback
 
-# add to sys.path the location of user-defined modules
-# assume user-defined modules (e.g. index.py) are located with passenger_wsgi.py, this file.
-sys.path.append(os.path.dirname(__file__))
+# substitute a python executable for the default one used by passenger/apache.
+PYTHON_EXE = '/usr/bin/python2.7'
+if sys.executable != PYTHON_EXE:
+    os.execl(PYTHON_EXE, PYTHON_EXE, *sys.argv)
 
-import deployenv
-if sys.executable != deployenv.PYTHON_EXE:
-    os.execl(deployenv.PYTHON_EXE, deployenv.PYTHON_EXE, *sys.argv)
 
 def exceptionLoggingMiddleware(application, logfile):
     '''
@@ -19,7 +18,6 @@ def exceptionLoggingMiddleware(application, logfile):
     if you are able to get this module to run, but your app can not respond to
     requests for some reason and it is not able to log why.
     '''
-    import traceback
     def logApp(environ, start_response):
         try:
             return application(environ, start_response)
@@ -44,6 +42,11 @@ def moveEnvVarsWSGIMiddleware(application, keys):
                 os.environ[key] = environ[key]
         return application(environ, start_response)
     return app
+
+
+# add to sys.path the location of user-defined modules
+# assume user-defined modules (e.g. index.py) are located with passenger_wsgi.py, this file.
+sys.path.append(os.path.dirname(__file__))
 
 
 # RUNNING A WSGI-APP USING PASSENGER requires setting 'application' to a wsgi-app

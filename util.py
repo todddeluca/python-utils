@@ -7,15 +7,13 @@ ONLY DEPENDENCIES ON STANDARD LIBRARY MODULES ALLOWED IN THIS FILE.
 '''
 
 import datetime
-import math
 import hashlib # sha
 import itertools
-import tempfile
-import shutil
-import time
+import math
 import os
-import sys
 import subprocess
+import sys
+import time
 
 
 def coroutine(func):
@@ -433,9 +431,9 @@ def dumpObject(obj, pickleFilename, protocol=-1, mode='wb'):
     return obj
 
 
-################################
-# FILE COMPARISION
-################################
+################
+# FILES AND DIRS 
+################
 
 
 def writeToFile(data, filename, mode='w'):

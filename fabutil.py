@@ -3,7 +3,29 @@
 FABRIC UTILITY FUNCTIONS
 '''
 
+import os
 import subprocess
+
+
+import fabric.api
+from fabric.api import env
+import fabric.contrib.files
+
+# http://stackoverflow.com/questions/6725244/running-fabric-script-locally
+def setremote():
+    env.run = fabric.api.run
+    env.cd = fabric.api.cd
+    env.rsync = rsync
+    env.exists = fabric.contrib.files.exists
+    return env
+
+def setlocal():
+    env.run = fabric.api.local
+    env.cd = fabric.api.lcd
+    env.rsync = lrsync
+    env.exists = os.path.exists
+    return env
+
 
 def file_format(infile, outfile, args=None, keywords=None):
     '''
