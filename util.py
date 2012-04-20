@@ -384,6 +384,16 @@ def stddev(nums):
     return math.sqrt(variance(nums))
 
 
+def median(nums):
+    l = len(nums)
+    if l % 2 == 1: # odd
+        return sorted(nums)[(l - 1) / 2] # the middle element
+    else: # even
+        s = sorted(nums)
+        return (s[l / 2] + s[(l / 2) - 1]) / 2.0 # avg of 2 middle elements
+
+
+
 #######################################
 # COMBINATORICS FUNCTIONS
 #######################################
