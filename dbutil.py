@@ -15,15 +15,23 @@ import contextlib
 import logging
 
 
-class OnePool(object):
+class Reuser(object):
     '''
-    An instance is a callable object that returns an open connection.  Multiple calls will return the same connection,
-    if the connection is still "live".  It will open a new connection if no connection is open yet or the existing
-    connection is closed (or otherwise fails.)
+    An instance is a callable object that returns an open connection.  Multiple
+    calls will return the same connection, if the connection is still "live".
+    It will open a new connection if no connection is open yet or the existing
+    connection is closed (or otherwise fails to be pinged.)
+    This object is meant to handle two common scenarios with one API.
+    * Opening and closing a connection very rapidly can cause a database to
+      balk.  Reuser allows a process to open one connection and reuse it.
+    * A connection kept open a long time can be closed by the database. 
+      Reuser will open a new connection when the existing connection can
+      not be reused.
+
     '''
     def __init__(self, open_conn):
         '''
-        open: function that returns an open connection
+        open_conn: function that returns an open connection
         '''
         self.open_conn = open_conn
         self.conn = None
@@ -44,10 +52,12 @@ class OnePool(object):
             try:
                 selectSQL(self.conn, 'SELECT 1')
                 return True
-            except Exception as e: # OperationalError 2006 happens when the db connection times out.
+            except Exception as e: 
+                # OperationalError 2006 happens when the db connection times
+                # out.
                 if not e.args or e.args[0] != 2006:
                     # only log non-2006 execptions
-                    logging.exception('Exception encountered when pinging connection in OnePool._ping.')
+                    logging.exception('Exception encountered when pinging connection in Reuser._ping.')
                 return False
         else:
             return False
