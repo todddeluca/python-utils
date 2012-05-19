@@ -235,6 +235,18 @@ def lastMonth(thisMonth=None):
 ########
 
 
+class AttrDict(dict):
+    '''
+    A dictionary whose keys can also be accessed as attributes.
+    i.e. as obj['key'] or obj.key
+    '''
+    def __getattr__(self, key):
+        return self[key]
+
+    def __setattr__(self, key, value):
+        self[key] = value
+
+
 class SimpleNamespace(object):
     '''
     use this if you want to instantiate an object to serve as a namespace.
@@ -370,6 +382,8 @@ def any(pred, seq):
 ########################
 # DESCRIPTIVE STATISTICS
 ########################
+
+# Need more speed and power: consider using scipy 
 
 def mean(nums):
     return float(sum(nums))/len(nums)
