@@ -237,8 +237,28 @@ def lastMonth(thisMonth=None):
 
 class AttrDict(dict):
     '''
-    A dictionary whose keys can also be accessed as attributes.
-    i.e. as obj['key'] or obj.key
+    A dictionary whose keys can also be accessed as items or attributes.
+    This provides syntactic sugar to avoid typing lots of brackets and quotes.
+    However by conflating attribute and item access semantics it can lead to
+    strange behavior.
+
+    Example:
+
+        obj = AttrDict()
+        obj['key1'] = 'hi'
+        obj.key2 = 'hello'
+        print obj['key1']
+        print obj.key2
+
+    Example of strange behavior when setting a built-in attribute:
+
+        obj = AttrDict()
+        obj.hi = 'hello!'
+        print obj.get('hi') # 'hello!'
+        obj.get = 'bye' # overwrite dict get function?  No.
+        print obj.get # <built-in method get of AttrDict object at ...>
+        print obj['get'] # 'bye'
+        print obj.get('hi') # 'hello!'.  get() still works.
     '''
     def __getattr__(self, key):
         return self[key]
@@ -247,12 +267,28 @@ class AttrDict(dict):
         self[key] = value
 
 
-class SimpleNamespace(object):
+
+class Namespace(object):
     '''
-    use this if you want to instantiate an object to serve as a namespace.
-    e.g. foo = SimpleNamespace(); foo.bar = 1; print foo.bar; # prints '1'
+    Use this if you want to instantiate an object to serve as a namespace.
+
+    Example:
+        foo = Namespace()
+        # assignment
+        foo.bar = 1
+        # access
+        print foo.bar; # prints '1'
+        # testing for presence
+        'bar' in foo # True
+        hasattr(foo, 'bar') # True
+        # iteration is a bit awkward
+        for attrname in foo:
+            value = getattr(foo, attrname)
+            setattr(foo, attrname, 'Hi {}'.format(value))
+
     '''
-    pass
+    def __iter__(self):
+        return iter(self.__dict__)
 
 
 def mergeListOfLists(lists):
